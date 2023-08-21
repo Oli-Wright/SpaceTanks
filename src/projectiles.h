@@ -1,4 +1,4 @@
-// 3D shapes for Space Tanks.
+// Space Tanks projectiles management
 //
 // Copyright (C) 2023 Oli Wright
 //
@@ -19,31 +19,18 @@
 // oli.wright.github@gmail.com
 
 #pragma once
-#include "extras/shapes3d.h"
+#include "picovectorscope.h"
+#include "extras/camera.h"
 
-enum class FixedShape
+
+// Static class to manage _all_ the projectiles
+class Projectiles
 {
-    Pyr,
-    Box,
-    Tank1,
-    Tank2,
-    Projectile,
-    Missile,
-    Saucer,
-    RTread0,
-    FTread0,
-    Radar,
-    Chunk0,
-    Chunk1,
-    Chunk2,
-    Chunk3,
-    Chunk4,
-    Ba,
-    ttle,
-    Zone,
-    Count
+public:    
+    static void Reset();
+    static void Update();
+    static void Draw(DisplayList& displayList, const Camera& camera);
+
+    static bool IsActive(int idx);
+    static void Create(int idx, const FixedTransform3D& parent, uint collisionMask);
 };
-
-extern const Shape3D kFixedShapes[(int)FixedShape::Count];
-
-inline const Shape3D& GetFixedShape(FixedShape shape) { return kFixedShapes[(int) shape]; }

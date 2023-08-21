@@ -1,4 +1,4 @@
-// 3D shapes for Space Tanks.
+// Space Tanks work-in-progress
 //
 // Copyright (C) 2023 Oli Wright
 //
@@ -19,31 +19,18 @@
 // oli.wright.github@gmail.com
 
 #pragma once
-#include "extras/shapes3d.h"
 
-enum class FixedShape
-{
-    Pyr,
-    Box,
-    Tank1,
-    Tank2,
-    Projectile,
-    Missile,
-    Saucer,
-    RTread0,
-    FTread0,
-    Radar,
-    Chunk0,
-    Chunk1,
-    Chunk2,
-    Chunk3,
-    Chunk4,
-    Ba,
-    ttle,
-    Zone,
-    Count
-};
+#include "picovectorscope.h"
 
-extern const Shape3D kFixedShapes[(int)FixedShape::Count];
+typedef FixedPoint<8, 8, int32_t, int32_t> FrameRateValue;
+typedef FixedPoint<4, 16, int32_t, int32_t, false> Angle;
 
-inline const Shape3D& GetFixedShape(FixedShape shape) { return kFixedShapes[(int) shape]; }
+// The frame rate to run at
+static constexpr FrameRateValue kFramesPerSecond = 240;
+
+// Convert from something per second to something per frame
+static constexpr FrameRateValue kPerSecondMultiplier = 1.f / (float) kFramesPerSecond;
+
+// Adjustment to try to keep intensities uniform across different frame rates
+// TODO: Make this better.  It doesn't account for intensity non-linearity.
+static constexpr Intensity kIntensityAdjustment = 120.f / (float) kFramesPerSecond;

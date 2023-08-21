@@ -29,8 +29,17 @@ include(PicoVectorscope/vectorscope.cmake)
 include(PicoVectorscope/extras/extras.cmake)
 
 target_sources(${PROJECT_NAME} PRIVATE
-        src/spacetanks.cpp
+        src/background.cpp
+        src/collisions.cpp
+        src/enemytanks.cpp
+        src/grid.cpp
+        src/obstacles.cpp
+        src/particles.cpp
+        src/player.cpp
+        src/projectiles.cpp
+        src/radar.cpp
         src/shapes.cpp
+        src/spacetanks.cpp
 )
 
 # Configure stdio
