@@ -112,6 +112,7 @@ public:
     {}
 
     bool IsActive() const { return m_active; }
+    bool IsAlive() const { return IsActive() && (m_behaviour != Behaviour::Dead); }
 
     void Respawn()
     {
@@ -324,8 +325,8 @@ void EnemyTanks::Destroy(const class CollisionObject& collisionObject)
     }
 }
 
-const FixedTransform3D* EnemyTanks::GetTransform(int idx)
+const FixedTransform3D* EnemyTanks::GetTransformIfAlive(int idx)
 {
     const EnemyTank& tank = s_enemyTanks[idx];
-    return tank.IsActive() ? &tank.GetModelToWorld() : nullptr;
+    return tank.IsAlive() ? &tank.GetModelToWorld() : nullptr;
 }

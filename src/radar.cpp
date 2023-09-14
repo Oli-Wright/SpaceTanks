@@ -24,9 +24,11 @@
 
 static constexpr Angle kRadarRotationStep = 1.f * k2Pi * (float) kPerSecondMultiplier;
 static constexpr DisplayListVector2 kRadarPos(0.15f, 0.85f);
-static constexpr DisplayListScalar kRadarRadius = 0.1f;
-static constexpr DisplayListScalar kAspectRatio = 3.f / 4.f;
-static constexpr StandardFixedTranslationScalar kRadarScale = (float) kRadarRadius / 15.f;
+static constexpr StandardFixedTranslationScalar kRadarRadius = 0.1f;
+static constexpr StandardFixedTranslationScalar kAspectRatio = 3.f / 4.f;
+static constexpr StandardFixedTranslationScalar kRadarRange = 8.f;
+static constexpr StandardFixedTranslationScalar kRadarRange2 = kRadarRange * kRadarRange;
+static constexpr StandardFixedTranslationScalar kRadarScale = (float) kRadarRadius / (float) kRadarRange;
 static constexpr StandardFixedTranslationScalar kRecip2Pi = 1.f / (float) k2Pi;
 static constexpr int kNumCircleSegments = 32;
 
@@ -42,7 +44,16 @@ static void drawPing(DisplayList& displayList, const FixedTransform3D& worldToVi
     worldToView.transformVector(localPos, pos);
     StandardFixedTranslationScalar angle = StandardFixedTranslationScalar::ApproxATan2(localPos.x, localPos.z);
     Intensity intensity = ((angle * kRecip2Pi) + 0.5f - s_normRadarAngle).frac();
-    DisplayListVector2 screenPos(localPos.x * kRadarScale * kAspectRatio, localPos.z * kRadarScale);
+    StandardFixedTranslationScalar dist2 = (localPos.x * localPos.x) + (localPos.z * localPos.z);
+    StandardFixedTranslationScalar scale = kRadarScale;
+    if(dist2 > kRadarRange2)
+    {
+        // Adjust the scale to clamp the blip to the edge of the radar
+        StandardFixedTranslationScalar dist = dist2.sqrt();
+        scale = kRadarRadius / dist;
+        //LOG_INFO(s_radarLog, "%f, %f, %f\n", (float) dist2, (float) dist, (float) scale);
+    }
+    DisplayListVector2 screenPos(localPos.x * scale * kAspectRatio, localPos.z * scale);
     screenPos += kRadarPos;
     displayList.PushPoint(screenPos, intensity);
 }
@@ -50,7 +61,6 @@ static void drawPing(DisplayList& displayList, const FixedTransform3D& worldToVi
 void Radar::Reset()
 {
     s_radarAngle = 0;
-#if 1
     Angle angle;
     for(int i = 0; i < kNumCircleSegments; ++i)
     {
@@ -59,9 +69,8 @@ void Radar::Reset()
         SinTable::SinCos(angle, s, c);
         s_circlePoints[i].x = s * kRadarRadius * kAspectRatio + kRadarPos.x;
         s_circlePoints[i].y = c * -kRadarRadius + kRadarPos.y;
-        LOG_INFO(s_radarLog, "%f, %f\n", (float) s_circlePoints[i].x, (float) s_circlePoints[i].y);
+        //LOG_INFO(s_radarLog, "%f, %f\n", (float) s_circlePoints[i].x, (float) s_circlePoints[i].y);
     }
-#endif
 }
 
 void Radar::Update()
@@ -96,7 +105,7 @@ void Radar::Draw(DisplayList& displayList, const Camera& camera)
     cameraToWorld.orthonormalInvert(worldToCamera);
     for(int i = 0; i < kMaxEnemyTanks; ++i)
     {
-        const FixedTransform3D* modelToWorld = EnemyTanks::GetTransform(i);
+        const FixedTransform3D* modelToWorld = EnemyTanks::GetTransformIfAlive(i);
         if(modelToWorld) drawPing(displayList, worldToCamera, modelToWorld->t);
     }
 }

@@ -32,6 +32,6 @@ public:
     static void Update();
     static void Draw(DisplayList& displayList, const Camera& camera);
     static void Destroy(const class CollisionObject& collisionObject);
-    // Returns nullptr if the specified tank is not active
-    static const FixedTransform3D* GetTransform(int idx);
+    // Returns nullptr if the specified tank is not alive
+    static const FixedTransform3D* GetTransformIfAlive(int idx);
 };
